@@ -1,9 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
 {
+    public int count;
+    public int maxLife;
+    // public int currentLife;
+    public bool isAlive = true;
+
     private Rigidbody2D rb;
 
     private float moveSpeed;
@@ -19,6 +25,7 @@ public class PlayerController : MonoBehaviour
     {
         rb = gameObject.GetComponent<Rigidbody2D>();
 
+        // currentLife = maxLife;
         moveSpeed = 3f;
         jumpForce = 40f;
         isJumping = false;   
@@ -33,22 +40,26 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate() 
     {
-        if (moveHorizontal > 0.1f || moveHorizontal < -0.1f)
-        {
-            rb.AddForce(new Vector2(moveHorizontal * moveSpeed, 0f), ForceMode2D.Impulse);
-        }
 
-        if (!isJumping && moveVertical > 0.1f)
+        if(isAlive)
         {
-            rb.AddForce(new Vector2(0f, moveVertical * jumpForce), ForceMode2D.Impulse);
-        }
+            if (moveHorizontal > 0.1f || moveHorizontal < -0.1f)
+            {
+                rb.AddForce(new Vector2(moveHorizontal * moveSpeed, 0f), ForceMode2D.Impulse);
+            }
 
-        if (facingRight == false && moveHorizontal > 0)
-        {
-            Flip();
-        }else if (facingRight == true && moveHorizontal < 0)
-        {
-            Flip();
+            if (!isJumping && moveVertical > 0.1f)
+            {
+                rb.AddForce(new Vector2(0f, moveVertical * jumpForce), ForceMode2D.Impulse);
+            }
+
+            if (facingRight == false && moveHorizontal > 0)
+            {
+                Flip();
+            }else if (facingRight == true && moveHorizontal < 0)
+            {
+                Flip();
+            }
         }
     }
 
@@ -58,6 +69,14 @@ public class PlayerController : MonoBehaviour
         {
             isJumping = false;
         }
+
+        if(collision.gameObject.tag == "Light")
+        {
+            count = count + 1;
+            moveSpeed = moveSpeed - 1f;
+            TakeDamage();
+            Debug.Log(count);
+        }
     }
 
     void OnTriggerExit2D(Collider2D collision)
@@ -66,6 +85,12 @@ public class PlayerController : MonoBehaviour
         {
             isJumping = true;
         }
+
+        if(collision.gameObject.tag == "Light")
+        {
+            moveSpeed = 3f;
+        }
+
     }
 
     void Flip()
@@ -74,5 +99,29 @@ public class PlayerController : MonoBehaviour
         Vector3 Scaler = transform.localScale;
         Scaler.x *= -1;
         transform.localScale = Scaler;
+    }
+
+    // IEnumerator Damage()
+    // {
+
+    // }
+
+    public void TakeDamage()
+    {
+        if (isAlive)
+        {    
+            // currentLife--;
+            if (maxLife <= count)
+            {
+                isAlive = false;
+                Invoke("Restart", 2f);
+                Debug.Log("Game Over!");
+            }
+        }
+    }
+
+    void Restart()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 }
