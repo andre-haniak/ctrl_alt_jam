@@ -72,8 +72,8 @@ public class PlayerController : MonoBehaviour
 
         if(collision.gameObject.tag == "Light")
         {
-            count = count + 1;
-            moveSpeed = moveSpeed - 1f;
+            count++;
+            moveSpeed = moveSpeed - 2f;
             TakeDamage();
             Debug.Log(count);
         }
@@ -100,11 +100,6 @@ public class PlayerController : MonoBehaviour
         Scaler.x *= -1;
         transform.localScale = Scaler;
     }
-
-    // IEnumerator Damage()
-    // {
-
-    // }
 
     public void TakeDamage()
     {
