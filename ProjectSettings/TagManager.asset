@@ -18,7 +18,7 @@ TagManager:
   - Ground
   - Trigger
   - Light
-  - 
+  - ForeGround
   - 
   - 
   - 
@@ -45,6 +45,9 @@ TagManager:
     locked: 0
   - name: BackGround
     uniqueID: 501811333
+    locked: 0
+  - name: ForeGround
+    uniqueID: 3562305405
     locked: 0
   - name: Player
     uniqueID: 1784925297

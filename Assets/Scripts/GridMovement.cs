@@ -1,9 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GridMovement : MonoBehaviour
 {
+
+    // hearth system
+    public int count;
+    public int maxLife;
+    public bool isAlive = true;
 
     public float moveSpeed;
 
@@ -11,6 +17,7 @@ public class GridMovement : MonoBehaviour
     private Vector2 input;
 
     private Animator animator;
+    public LayerMask solidObjectsLayer;
 
     private void Awake() 
     {
@@ -39,7 +46,10 @@ public class GridMovement : MonoBehaviour
                 targetPos.x += input.x;
                 targetPos.y += input.y;
                 
-                StartCoroutine(Move(targetPos));
+                if (isWalkable(targetPos))
+                {
+                    StartCoroutine(Move(targetPos));
+                }
             }
         }
 
@@ -58,4 +68,52 @@ public class GridMovement : MonoBehaviour
 
         isMoving = false;
     }
+
+    private bool isWalkable(Vector2 targetPos)
+    {
+        if(Physics2D.OverlapCircle(targetPos, 0.2f, solidObjectsLayer) != null)
+        {
+            return false;
+        } 
+        return true;
+    }
+
+    void OnTriggerEnter2D(Collider2D collision) 
+    {
+        if(collision.gameObject.tag == "Light")
+        {
+            count++;
+            moveSpeed = moveSpeed - 1.5f;
+            TakeDamage();
+            Debug.Log(count);
+        }
+    }
+
+    void OnTriggerExit2D(Collider2D collision)
+    {
+        if(collision.gameObject.tag == "Light")
+        {
+            moveSpeed = 3f;
+        }
+
+    }
+
+    public void TakeDamage()
+    {
+        if (isAlive)
+        {    
+            if (maxLife <= count)
+            {
+                isAlive = false;
+                Invoke("Restart", 2f);
+                Debug.Log("Game Over!");
+            }
+        }
+    }
+
+    void Restart()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
 }
