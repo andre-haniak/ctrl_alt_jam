@@ -71,6 +71,7 @@ public class GridMovement : MonoBehaviour
 
     private bool isWalkable(Vector2 targetPos)
     {
+        Debug.Log(Physics2D.OverlapCircle(targetPos, 0.2f, solidObjectsLayer));
         if(Physics2D.OverlapCircle(targetPos, 0.2f, solidObjectsLayer) != null)
         {
             return false;
