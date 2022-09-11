@@ -10,8 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 02fd112f77b8ed2468c44da291fad2ea, type: 3}
-  m_Name: New Dialog Object
+  m_Name: Dialog
   m_EditorClassIdentifier: 
   dialog:
-  - 
-  - 
+  - Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+  - It is a long established fact that a reader will be distracted by the readable
+    content of a page when looking at its layout.
