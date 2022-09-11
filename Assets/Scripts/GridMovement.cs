@@ -13,15 +13,25 @@ public class GridMovement : MonoBehaviour
 
     public float moveSpeed;
 
+    private float moveProgress;
     private bool isMoving;
     private Vector2 input;
+    private Vector3 targetPos;
 
     private Animator animator;
+    private RoomController roomController;
     public LayerMask solidObjectsLayer;
+
+    public List<GameObject> keys = new List<GameObject>();
 
     private void Awake() 
     {
         animator = GetComponent<Animator>();
+    }
+
+    private void Start()
+    {
+        roomController = Camera.main.GetComponent<RoomController>();
     }
 
     private void Update() 
@@ -32,23 +42,23 @@ public class GridMovement : MonoBehaviour
             input.x = Input.GetAxisRaw("Horizontal");
             input.y = Input.GetAxisRaw("Vertical");
 
-            if (input.x != 0) input.y = 0;
-            {
-                
-            }
-
-            if (input != Vector2.zero)
+            if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.S))
             {
                 animator.SetFloat("Horizontal", input.x);
                 animator.SetFloat("Vertical", input.y);
 
-                var targetPos = transform.position;
+                targetPos = transform.position;
                 targetPos.x += input.x;
                 targetPos.y += input.y;
                 
                 if (isWalkable(targetPos))
                 {
                     StartCoroutine(Move(targetPos));
+                }
+                else
+                {
+                    CheckPush();
+                    CheckDoor();
                 }
             }
         }
@@ -59,23 +69,51 @@ public class GridMovement : MonoBehaviour
     IEnumerator Move(Vector3 targetPos)
     {
         isMoving = true;
-        while ((targetPos - transform.position).sqrMagnitude > Mathf.Epsilon)
+        moveProgress = 0;
+        int i = 0;
+        while (Vector3.Distance(targetPos, transform.position) > 0.05f)
         {
-            transform.position = Vector3.MoveTowards(transform.position, targetPos, moveSpeed * Time.deltaTime);
+            transform.position = Vector3.Lerp(transform.position, targetPos, moveProgress);
             yield return null;
+            moveProgress += Time.deltaTime * moveSpeed;
+            i++;
+            if (i > 5000)
+            {
+                break;
+            }
         }
         transform.position = targetPos;
-
         isMoving = false;
     }
 
     private bool isWalkable(Vector2 targetPos)
     {
-        if(Physics2D.OverlapCircle(targetPos, 0.2f, solidObjectsLayer) != null)
+        return Physics2D.OverlapCircle(targetPos, 0.2f, solidObjectsLayer) == null;
+    }
+
+    private void CheckPush()
+    {
+        if (Physics2D.OverlapCircle(targetPos, 0.2f, solidObjectsLayer).gameObject.layer == 7)
         {
-            return false;
-        } 
-        return true;
+            Physics2D.OverlapCircle(targetPos, 0.2f, solidObjectsLayer).GetComponent<Pushable>().CallPush(targetPos + new Vector3(input.x, input.y, 0));
+        }
+    }
+
+    private void CheckDoor()
+    {
+        if (Physics2D.OverlapCircle(targetPos, 0.2f, solidObjectsLayer).gameObject.layer == 12 && !Physics2D.OverlapCircle(targetPos, 0.2f, solidObjectsLayer).GetComponent<Door>().locked)
+        {
+            roomController.CallChangeRoom(Physics2D.OverlapCircle(targetPos, 0.2f, solidObjectsLayer).GetComponent<Door>().nextRoom, Physics2D.OverlapCircle(targetPos, 0.2f, solidObjectsLayer).GetComponent<Door>().playerNextPosition);
+        }
+        else if (Physics2D.OverlapCircle(targetPos, 0.2f, solidObjectsLayer).gameObject.layer == 12 && Physics2D.OverlapCircle(targetPos, 0.2f, solidObjectsLayer).GetComponent<Door>().locked)
+        {
+            if (keys.Contains(Physics2D.OverlapCircle(targetPos, 0.2f, solidObjectsLayer).GetComponent<Door>().key))
+            {
+                Physics2D.OverlapCircle(targetPos, 0.2f, solidObjectsLayer).GetComponent<Door>().Open();
+                keys.Remove(Physics2D.OverlapCircle(targetPos, 0.2f, solidObjectsLayer).GetComponent<Door>().key);
+                Destroy(Physics2D.OverlapCircle(targetPos, 0.2f, solidObjectsLayer).GetComponent<Door>().key);
+            }
+        }
     }
 
     void OnTriggerEnter2D(Collider2D collision) 
@@ -86,6 +124,13 @@ public class GridMovement : MonoBehaviour
             moveSpeed = moveSpeed - 1.5f;
             TakeDamage();
             Debug.Log(count);
+        }
+
+        if (collision.gameObject.tag == "Key")
+        {
+            keys.Add(collision.gameObject);
+            collision.gameObject.GetComponent<SpriteRenderer>().enabled = false;
+            collision.enabled = false;
         }
     }
 
