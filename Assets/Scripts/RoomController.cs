@@ -45,6 +45,7 @@ public class RoomController : MonoBehaviour
             resetRoom();
         }
         player.transform.position = lastPlayerPos;
+        player.GetComponent<GridMovement>().canMove = true;
         for (int i = 0; i < player.GetComponent<GridMovement>().keys.Count; i++)
         {
             player.GetComponent<GridMovement>().keys[i].GetComponent<SpriteRenderer>().enabled = true;
