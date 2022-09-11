@@ -15,20 +15,16 @@ public class Pushable : MonoBehaviour
     {
         startPos = transform.position;
         roomController = Camera.main.GetComponent<RoomController>();
+        roomController.resetRoom += CallResetPosition;
     }
 
-    private void Update()
+
+    private void CallResetPosition()
     {
-        if (Input.GetKeyDown(KeyCode.R) && roomController.room == room)
+        if (roomController.room == room)
         {
-            StartCoroutine(ResetPosition());
+            transform.position = startPos;
         }
-    }
-
-    IEnumerator ResetPosition()
-    {
-        yield return new WaitForSeconds(1);
-        transform.position = startPos;
     }
 
     public void CallPush(Vector3 targetPos)

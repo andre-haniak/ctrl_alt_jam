@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class RoomController : MonoBehaviour
 {
@@ -8,6 +9,7 @@ public class RoomController : MonoBehaviour
     public GameObject player;
     public Vector3 lastPlayerPos;
     public Animator transition;
+    public Action resetRoom;
 
     private void Start()
     {
@@ -19,9 +21,14 @@ public class RoomController : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.R))
         {
-            transition.Play("Transition");
-            StartCoroutine(ResetRoom());
+            CallResetRoom();
         }
+    }
+
+    public void CallResetRoom()
+    {
+        transition.Play("Transition");
+        StartCoroutine(ResetRoom());
     }
 
     public void CallChangeRoom(int nextRoom, Vector3 playerPos)
@@ -33,6 +40,10 @@ public class RoomController : MonoBehaviour
     IEnumerator ResetRoom()
     {
         yield return new WaitForSeconds(1);
+        if (resetRoom != null)
+        {
+            resetRoom();
+        }
         player.transform.position = lastPlayerPos;
         for (int i = 0; i < player.GetComponent<GridMovement>().keys.Count; i++)
         {

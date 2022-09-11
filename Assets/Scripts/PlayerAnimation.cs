@@ -36,4 +36,12 @@ public class PlayerAnimation : MonoBehaviour
     {
         animator.Play("Push");
     }
+
+    private void OnDestroy()
+    {
+        player.moveStop -= MoveStop;
+        player.moveHorizontal -= MoveHorizontal;
+        player.moveVertical -= MoveVertical;
+        player.push -= Push;
+    }
 }
