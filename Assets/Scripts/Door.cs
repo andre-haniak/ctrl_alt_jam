@@ -6,6 +6,9 @@ public class Door : MonoBehaviour
 {
     private Animator animator;
 
+    public int nextRoom;
+    public Vector3 playerNextPosition;
+
     private void Awake() 
     {
         animator = GetComponent<Animator>();
