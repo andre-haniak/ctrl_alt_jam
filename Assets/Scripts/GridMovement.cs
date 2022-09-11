@@ -10,7 +10,7 @@ public class GridMovement : MonoBehaviour
     // hearth system
     public float count;
     public int maxLife;
-    public bool isAlive, inLight;
+    public bool isAlive, inLight, canMove;
 
     public float moveSpeed;
 
@@ -39,9 +39,10 @@ public class GridMovement : MonoBehaviour
             if (maxLife <= count)
             {
                 roomController.CallResetRoom();
+                canMove = false;
             }
         }
-        if (!isMoving)
+        if (!isMoving && canMove)
         {
             input.x = Input.GetAxisRaw("Horizontal");
             input.y = Input.GetAxisRaw("Vertical");
@@ -98,6 +99,10 @@ public class GridMovement : MonoBehaviour
             transform.position = Vector3.Lerp(transform.position, targetPos, moveProgress);
             yield return null;
             moveProgress += Time.deltaTime * currentMoveSpeed;
+            if (!canMove)
+            {
+                break;
+            }
             i++;
             if (i > 5000)
             {
