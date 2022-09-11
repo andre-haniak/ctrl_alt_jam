@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System;
 
 public class GridMovement : MonoBehaviour
 {
@@ -18,16 +19,11 @@ public class GridMovement : MonoBehaviour
     private Vector2 input;
     private Vector3 targetPos;
 
-    private Animator animator;
     private RoomController roomController;
     public LayerMask solidObjectsLayer;
+    public Action moveStop, moveHorizontal, moveVertical, push;
 
     public List<GameObject> keys = new List<GameObject>();
-
-    private void Awake() 
-    {
-        animator = GetComponent<Animator>();
-    }
 
     private void Start()
     {
@@ -44,13 +40,19 @@ public class GridMovement : MonoBehaviour
 
             if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.S))
             {
-                animator.SetFloat("Horizontal", input.x);
-                animator.SetFloat("Vertical", input.y);
-
                 targetPos = transform.position;
                 targetPos.x += input.x;
                 targetPos.y += input.y;
-                
+
+                if (targetPos.x > transform.position.x)
+                {
+                    transform.GetChild(0).localScale = new Vector3(1, 1, 1);
+                }
+                else
+                {
+                    transform.GetChild(0).localScale = new Vector3(-1, 1, 1);
+                }
+
                 if (isWalkable(targetPos))
                 {
                     StartCoroutine(Move(targetPos));
@@ -62,13 +64,25 @@ public class GridMovement : MonoBehaviour
                 }
             }
         }
-
-        animator.SetBool("isMoving", isMoving);
     }
 
     IEnumerator Move(Vector3 targetPos)
     {
         isMoving = true;
+        if (targetPos.x != transform.position.x)
+        {
+            if (moveHorizontal != null)
+            {
+                moveHorizontal();
+            }
+        }
+        else if (targetPos.y != transform.position.y)
+        {
+            if (moveVertical != null)
+            {
+                moveVertical();
+            }
+        }
         moveProgress = 0;
         int i = 0;
         while (Vector3.Distance(targetPos, transform.position) > 0.05f)
@@ -84,6 +98,10 @@ public class GridMovement : MonoBehaviour
         }
         transform.position = targetPos;
         isMoving = false;
+        if (moveStop != null)
+        {
+            moveStop();
+        }
     }
 
     private bool isWalkable(Vector2 targetPos)
@@ -96,6 +114,10 @@ public class GridMovement : MonoBehaviour
         if (Physics2D.OverlapCircle(targetPos, 0.2f, solidObjectsLayer).gameObject.layer == 7)
         {
             Physics2D.OverlapCircle(targetPos, 0.2f, solidObjectsLayer).GetComponent<Pushable>().CallPush(targetPos + new Vector3(input.x, input.y, 0));
+            if (push != null)
+            {
+                push();
+            }
         }
     }
 
