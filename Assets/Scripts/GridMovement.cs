@@ -48,7 +48,7 @@ public class GridMovement : MonoBehaviour
                 {
                     transform.GetChild(0).localScale = new Vector3(1, 1, 1);
                 }
-                else
+                else if (targetPos.x < transform.position.x)
                 {
                     transform.GetChild(0).localScale = new Vector3(-1, 1, 1);
                 }

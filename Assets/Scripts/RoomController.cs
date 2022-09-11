@@ -7,22 +7,26 @@ public class RoomController : MonoBehaviour
     public int room = 0;
     public GameObject player;
     public Vector3 lastPlayerPos;
+    public Animator transition;
 
     private void Start()
     {
         lastPlayerPos = player.transform.position;
+        transition = GetComponentInChildren<Animator>();
     }
 
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.R))
         {
+            transition.Play("Transition");
             StartCoroutine(ResetRoom());
         }
     }
 
     public void CallChangeRoom(int nextRoom, Vector3 playerPos)
     {
+        transition.Play("Transition");
         StartCoroutine(ChangeRoom(nextRoom, playerPos));
     }
 
@@ -49,6 +53,10 @@ public class RoomController : MonoBehaviour
         if (nextRoom == 1)
         {
             transform.position = new Vector3(25, 0, -10);
+        }
+        if (nextRoom == 2)
+        {
+            transform.position = new Vector3(50, 0, -10);
         }
         player.transform.position = playerPos;
         lastPlayerPos = playerPos;
