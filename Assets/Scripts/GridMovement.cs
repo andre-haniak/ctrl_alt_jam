@@ -8,13 +8,13 @@ public class GridMovement : MonoBehaviour
 {
 
     // hearth system
-    public int count;
+    public float count;
     public int maxLife;
-    public bool isAlive = true;
+    public bool isAlive, inLight;
 
     public float moveSpeed;
 
-    private float moveProgress;
+    private float moveProgress, currentMoveSpeed;
     private bool isMoving;
     private Vector2 input;
     private Vector3 targetPos;
@@ -28,11 +28,19 @@ public class GridMovement : MonoBehaviour
     private void Start()
     {
         roomController = Camera.main.GetComponent<RoomController>();
+        currentMoveSpeed = moveSpeed;
     }
 
     private void Update() 
     {
-
+        if (inLight)
+        {
+            count += Time.deltaTime;
+            if (maxLife <= count)
+            {
+                roomController.CallResetRoom();
+            }
+        }
         if (!isMoving)
         {
             input.x = Input.GetAxisRaw("Horizontal");
@@ -48,7 +56,7 @@ public class GridMovement : MonoBehaviour
                 {
                     transform.GetChild(0).localScale = new Vector3(1, 1, 1);
                 }
-                else
+                else if (targetPos.x < transform.position.x)
                 {
                     transform.GetChild(0).localScale = new Vector3(-1, 1, 1);
                 }
@@ -89,7 +97,7 @@ public class GridMovement : MonoBehaviour
         {
             transform.position = Vector3.Lerp(transform.position, targetPos, moveProgress);
             yield return null;
-            moveProgress += Time.deltaTime * moveSpeed;
+            moveProgress += Time.deltaTime * currentMoveSpeed;
             i++;
             if (i > 5000)
             {
@@ -140,14 +148,11 @@ public class GridMovement : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D collision) 
     {
-        if(collision.gameObject.tag == "Light")
+        if (collision.gameObject.tag == "Light")
         {
-            count++;
-            moveSpeed = moveSpeed - 1.5f;
-            TakeDamage();
-            Debug.Log(count);
+            inLight = true;
+            currentMoveSpeed = moveSpeed / 5;
         }
-
         if (collision.gameObject.tag == "Key")
         {
             keys.Add(collision.gameObject);
@@ -160,27 +165,10 @@ public class GridMovement : MonoBehaviour
     {
         if(collision.gameObject.tag == "Light")
         {
-            moveSpeed = 3f;
+            inLight = false;
+            currentMoveSpeed = moveSpeed;
+            count = 0;
         }
 
     }
-
-    public void TakeDamage()
-    {
-        if (isAlive)
-        {    
-            if (maxLife <= count)
-            {
-                isAlive = false;
-                Invoke("Restart", 2f);
-                Debug.Log("Game Over!");
-            }
-        }
-    }
-
-    void Restart()
-    {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-    }
-
 }
