@@ -8,6 +8,7 @@ TagManager:
   - Light
   - ObjToPush
   - Obstacles
+  - Key
   layers:
   - Default
   - TransparentFX

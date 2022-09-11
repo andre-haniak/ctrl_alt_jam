@@ -30,6 +30,12 @@ public class RoomController : MonoBehaviour
     {
         yield return new WaitForSeconds(1);
         player.transform.position = lastPlayerPos;
+        for (int i = 0; i < player.GetComponent<GridMovement>().keys.Count; i++)
+        {
+            player.GetComponent<GridMovement>().keys[i].GetComponent<SpriteRenderer>().enabled = true;
+            player.GetComponent<GridMovement>().keys[i].GetComponent<CircleCollider2D>().enabled = true;
+            player.GetComponent<GridMovement>().keys.Remove(player.GetComponent<GridMovement>().keys[i]);
+        }
     }
 
     IEnumerator ChangeRoom(int nextRoom, Vector3 playerPos)

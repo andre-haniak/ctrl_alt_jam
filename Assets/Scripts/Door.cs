@@ -6,6 +6,8 @@ public class Door : MonoBehaviour
 {
     private Animator animator;
 
+    public GameObject key;
+    public bool locked;
     public int nextRoom;
     public Vector3 playerNextPosition;
 
@@ -17,6 +19,8 @@ public class Door : MonoBehaviour
     [ContextMenu(itemName:"Open")]
     public void Open()
     {
-        animator.SetTrigger(name:"Open");
+        //animar depois
+        //animator.SetTrigger(name:"Open");
+        locked = false;
     }
 }

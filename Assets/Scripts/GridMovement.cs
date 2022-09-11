@@ -22,6 +22,8 @@ public class GridMovement : MonoBehaviour
     private RoomController roomController;
     public LayerMask solidObjectsLayer;
 
+    public List<GameObject> keys = new List<GameObject>();
+
     private void Awake() 
     {
         animator = GetComponent<Animator>();
@@ -99,9 +101,18 @@ public class GridMovement : MonoBehaviour
 
     private void CheckDoor()
     {
-        if (Physics2D.OverlapCircle(targetPos, 0.2f, solidObjectsLayer).gameObject.layer == 12)
+        if (Physics2D.OverlapCircle(targetPos, 0.2f, solidObjectsLayer).gameObject.layer == 12 && !Physics2D.OverlapCircle(targetPos, 0.2f, solidObjectsLayer).GetComponent<Door>().locked)
         {
             roomController.CallChangeRoom(Physics2D.OverlapCircle(targetPos, 0.2f, solidObjectsLayer).GetComponent<Door>().nextRoom, Physics2D.OverlapCircle(targetPos, 0.2f, solidObjectsLayer).GetComponent<Door>().playerNextPosition);
+        }
+        else if (Physics2D.OverlapCircle(targetPos, 0.2f, solidObjectsLayer).gameObject.layer == 12 && Physics2D.OverlapCircle(targetPos, 0.2f, solidObjectsLayer).GetComponent<Door>().locked)
+        {
+            if (keys.Contains(Physics2D.OverlapCircle(targetPos, 0.2f, solidObjectsLayer).GetComponent<Door>().key))
+            {
+                Physics2D.OverlapCircle(targetPos, 0.2f, solidObjectsLayer).GetComponent<Door>().Open();
+                keys.Remove(Physics2D.OverlapCircle(targetPos, 0.2f, solidObjectsLayer).GetComponent<Door>().key);
+                Destroy(Physics2D.OverlapCircle(targetPos, 0.2f, solidObjectsLayer).GetComponent<Door>().key);
+            }
         }
     }
 
@@ -113,6 +124,13 @@ public class GridMovement : MonoBehaviour
             moveSpeed = moveSpeed - 1.5f;
             TakeDamage();
             Debug.Log(count);
+        }
+
+        if (collision.gameObject.tag == "Key")
+        {
+            keys.Add(collision.gameObject);
+            collision.gameObject.GetComponent<SpriteRenderer>().enabled = false;
+            collision.enabled = false;
         }
     }
 
